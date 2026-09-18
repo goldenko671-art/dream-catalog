@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog Percetakan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F3F2ED;
+    --paper-raised: #FFFFFF;
+    --ink: #1B1B18;
+    --ink-soft: #55534C;
+    --line: rgba(27,27,24,0.16);
+    --cyan: #0092C7;
+    --magenta: #D6006D;
+    --yellow: #C79A00;
+    --focus: #0092C7;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #171714;
+      --paper-raised: #201F1B;
+      --ink: #EFEDE6;
+      --ink-soft: #A8A499;
+      --line: rgba(239,237,230,0.18);
+      --cyan: #3FBFEF;
+      --magenta: #FF5FA8;
+      --yellow: #E8C24A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #171714;
+    --paper-raised: #201F1B;
+    --ink: #EFEDE6;
+    --ink-soft: #A8A499;
+    --line: rgba(239,237,230,0.18);
+    --cyan: #3FBFEF;
+    --magenta: #FF5FA8;
+    --yellow: #E8C24A;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    background-image:
+      radial-gradient(var(--line) 0.6px, transparent 0.6px);
+    background-size: 14px 14px;
+    color: var(--ink);
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  a { color: inherit; }
+  button { font-family: inherit; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Header / Hero ---------- */
+  header.site {
+    padding: 28px 0 0;
+  }
+  .brandrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+  }
+  .brand .mark {
+    width: 22px; height: 22px;
+    flex-shrink: 0;
+  }
+  .brand strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .hero {
+    position: relative;
+    margin: 22px 0 36px;
+    padding: 44px 32px 40px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+  }
+  .crop { position: absolute; width: 16px; height: 16px; }
+  .crop::before, .crop::after { content: ""; position: absolute; background: var(--ink-soft); }
+  .crop::before { width: 100%; height: 1px; top: 50%; }
+  .crop::after { height: 100%; width: 1px; left: 50%; }
+  .crop.tl { top: -8px; left: -8px; }
+  .crop.tr { top: -8px; right: -8px; }
+  .crop.bl { bottom: -8px; left: -8px; }
+  .crop.br { bottom: -8px; right: -8px; }
+
+  .hero h1 {
+    margin: 0 0 14px;
+    font-size: clamp(30px, 5vw, 46px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    max-width: 14ch;
+  }
+  .hero p.lead {
+    margin: 0 0 26px;
+    max-width: 52ch;
+    color: var(--ink-soft);
+    font-size: 16px;
+  }
+
+  .searchbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 480px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    padding: 12px 14px;
+  }
+  .searchbar svg { flex-shrink: 0; color: var(--ink-soft); }
+  .searchbar input {
+    border: 0;
+    background: transparent;
+    outline: none;
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    width: 100%;
+  }
+  .searchbar input::placeholder { color: var(--ink-soft); }
+
+  /* ---------- Filters ---------- */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .chip {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .chip:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .chip.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .chip:focus-visible, .searchbar:focus-within, button:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .countline {
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    margin: 0 0 16px;
+  }
+
+  /* ---------- Grid ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    padding-bottom: 60px;
+  }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 620px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero { padding: 32px 20px 30px; }
+  }
+
+  .card {
+    position: relative;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card .crop { width: 10px; height: 10px; }
+  .card .crop::before, .card .crop::after { background: var(--accent, var(--ink-soft)); opacity: 0.55; }
+  .card .crop.tl { top: -5px; left: -5px; }
+  .card .crop.tr { top: -5px; right: -5px; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+  .icon-box svg { width: 30px; height: 30px; color: var(--ink); opacity: 0.85; }
+
+  .card h3 {
+    margin: 2px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .card p.desc {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 14px;
+    flex-grow: 1;
+  }
+  .specs {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: 2px;
+  }
+  .price {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .minorder {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+  }
+  .empty .mono { font-size: 13px; }
+  .empty p.msg { font-size: 16px; color: var(--ink); margin: 0 0 6px; }
+
+  footer.site {
+    border-top: 1px solid var(--line);
+    padding: 24px 0 40px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="site">
+    <div class="brandrow">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/></svg>
+        <span><strong>Dream Creative</strong> · katalog produk</span>
+      </div>
+      <div class="mono" style="font-size:12px; color:var(--ink-soft);">2027</div>
+    </div>
+
+    <div class="hero">
+      <div class="crop tl"></div><div class="crop tr"></div><div class="crop bl"></div><div class="crop br"></div>
+      <h1>Katalog cetak untuk setiap kebutuhan usaha, event acara</h1>
+      <p class="lead">Dari kartu nama sampai kemasan produk. Cari atau saring berdasarkan kategori untuk menemukan yang kamu butuhkan.</p>
+      <div class="searchbar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Cari produk, misalnya \"undangan\" atau \"stiker\"" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="filters" id="filters"></div>
+    <p class="countline mono" id="countline"></p>
+  </header>
+
+  <main>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <footer class="site">
+    <span>Admin Dream Creative — konfirmasi ke admin sebelum order.</span>
+    <span class="mono">0822-9893-1083</span>
+  </footer>
+</div>
+
+<script>
+  const categories = [
+    { key: "semua", label: "Semua" },
+    { key: "kartu-nama", label: "Kartu nama" },
+    { key: "brosur", label: "Brosur & flyer" },
+    { key: "banner", label: "Banner & spanduk" },
+    { key: "undangan", label: "Undangan" },
+    { key: "stiker", label: "Stiker & label" },
+    { key: "kalender", label: "Kalender" },
+    { key: "dokumen", label: "Nota & kwintasi" },
+    { key: "souvenir", label: "Souvenir" },
+    { key: "box", label: "Box" },
+    { key: "idcard", label: "ID card & lanyard" },
+    { key: "bendera", label: "Bendera printing" },
+  ];
+
+  const accentByCategory = {
+    "kartu-nama": "var(--cyan)", "brosur": "var(--magenta)", "banner": "var(--yellow)",
+    "undangan": "var(--cyan)", "stiker": "var(--magenta)", "kalender": "var(--yellow)",
+    "dokumen": "var(--cyan)", "souvenir": "var(--magenta)", "box": "var(--yellow)",
+    "idcard": "var(--cyan)", "bendera": "var(--magenta)", "box": "var(--yellow)",
+  };
+
+  const icons = {
+    "kartu-nama": `<rect x="3" y="6" width="18" height="12" rx="0.5"/><line x1="6.5" y1="10" x2="12" y2="10"/><line x1="6.5" y1="13" x2="10" y2="13"/>`,
+    "brosur": `<path d="M4 4h11l5 5v11H4z"/><line x1="15" y1="4" x2="15" y2="9"/><line x1="20" y1="9" x2="15" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="16" x2="17" y2="16"/>`,
+    "banner": `<line x1="6" y1="3" x2="6" y2="21"/><path d="M6 5h13l-3 4 3 4H6"/>`,
+    "undangan": `<rect x="3" y="5" width="18" height="14"/><path d="M3 6l9 7 9-7"/>`,
+    "stiker": `<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>`,
+    "kalender": `<rect x="3" y="5" width="18" height="16"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="7" y1="3" x2="7" y2="7"/><line x1="17" y1="3" x2="17" y2="7"/>`,
+    "dokumen": `<rect x="4" y="3" width="16" height="18"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/>`,
+    "souvenir": `<path d="M4 8h13v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M17 10h2a2 2 0 0 1 0 4h-2"/>`,
+    "box": `<path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v9l9 5 9-5V8"/><line x1="12" y1="13" x2="12" y2="22"/>`,
+    "idcard": `<rect x="5" y="4" width="14" height="18" rx="1"/><circle cx="12" cy="10" r="2.4"/><line x1="9" y1="16" x2="15" y2="16"/>`,
+    "bendera": `<line x1="6" y1="3" x2="6" y2="21"/><path d="M6 5h13l-3 4 3 4H6"/>`,
+  };
+
+  const products = [
+    { name: "Kartu Nama ivory", cat: "kartu-nama", desc: "@1box *isi 100*.", size: "9 × 5.5 cm", material: "Ivory", price: "Rp 50.000 / box", min: "Min. 1 box (100 lbr)" },
+    { name: "Kartu Nama ivoryt 2 muka", cat: "kartu-nama", desc: "@1box *isi 100*.", size: "9 × 5.5 cm", material: "Ivory", price: "Rp 75.000 / box", min: "Min. 1 box (100 lbr)" },
+
+    { name: "Brosur Lipat Tiga", cat: "brosur", desc: "Cocok untuk company profile atau penjelasan produk bertahap.", size: "A4 dilipat 3", material: "Art paper 150gr", price: "Rp 2.500 / lbr", min: "Min. 100 lembar" },
+    { name: "Flyer Promosi A5", cat: "brosur", desc: "Satu atau dua sisi, untuk promosi harga dan event.", size: "A5", material: "HVS 100gr", price: "Rp 1.200 / lbr", min: "Min. 250 lembar" },
+    { name: "Katalog Produk 16 Hal.", cat: "brosur", desc: "Booklet jilid staples untuk memajang seluruh katalog produk.", size: "A5", material: "Art paper 120gr", price: "Rp 18.000 / eks.", min: "Min. 50 eksemplar" },
+
+    { name: "X-Banner", cat: "banner", desc: "Banner berdiri lengkap dengan stand, siap pajang di toko.", size: "60 × 160 cm", material: "Ecobanner 280gr", price: "Rp 95.000 / unit", min: "Min. 1 unit" },
+    { name: "Vinyl Outdoor", cat: "banner", desc: "Untuk penggunaan outdoor, tahan cuaca dan panas.", size: "Ukuran custom", material: "Vinyl frontlite", price: "Rp 85.000 / m²", min: "Min. 1 m²" },
+    { name: "Roll Up Banner", cat: "banner", desc: "Banner gulung portable, praktis dibawa ke pameran.", size: "60 × 160 cm", material: "Flexi + stand alumunium", price: "Rp 275.000 / unit", min: "Min. 1 unit" },
+    { name: "Banner standar", cat: "banner", desc: "Banner custom sesuai kebutuhan.", size: "ukuran custom", material: "Ecobanner 280gr", price: "Rp 25.000 / m²", min: "Min. " },
+    { name: "Banner bahan korea", cat: "banner", desc: "Banner bahan korea.", size: "ukuran minimal 3m", material: "Bahan korea", price: "Rp 45.000 / m²", min: "Min. 3 m²" },
+    { name: "Banner Backlight", cat: "banner", desc: "Banner bahan korea.", size: "ukuran minimal 3m", material: "Backlite 500gr", price: "Rp 95.000 / m²", min: "Min. 3 m²" },
+
+    { name: "Undangan Pernikahan Hardcover", cat: "undangan", desc: "Sampul hardcover, kesan mewah untuk hari spesial.", size: "20 × 20 cm", material: "Art carton 310gr + hardcover", price: "Rp 8.500 / pcs", min: "Min. 100 pcs" },
+    { name: "Undangan Ulang Tahun", cat: "undangan", desc: "Desain ceria, cetak dua sisi, cocok untuk anak & dewasa.", size: "10 × 15 cm", material: "Art carton 260gr", price: "Rp 2.000 / pcs", min: "Min. 50 pcs" },
+    { name: "Undangan Digital + Cetak", cat: "undangan", desc: "Paket kombinasi file digital untuk WA dan versi cetak fisik.", size: "Ukuran custom", material: "Art carton 260gr", price: "Rp 3.500 / pcs", min: "Min. 50 pcs" },
+
+    { name: "Stiker Vinyl Custom", cat: "stiker", desc: "Tahan air, dipotong mengikuti bentuk logo atau desain.", size: "Ukuran custom", material: "Vinyl glossy / doff", price: "Rp 3.000 / pcs", min: "Min. 50 pcs" },
+    { name: "Label Produk", cat: "stiker", desc: "Label kemasan untuk produk UMKM, tahan minyak & air.", size: "Ukuran custom", material: "Chromo / vinyl", price: "Rp 150 / pcs", min: "Min. 500 pcs" },
+    { name: "Stiker Cutting Kaca", cat: "stiker", desc: "Untuk etalase dan kaca toko, tampilan one way vision.", size: "Ukuran custom", material: "One way vision", price: "Rp 45.000 / m²", min: "Min. 1 m²" },
+
+    { name: "Kalender Meja 2027", cat: "kalender", desc: "Kalender duduk 6 lembar, cocok untuk hadiah klien.", size: "15 × 21 cm", material: "Art paper 210gr", price: "Rp 15.000 / pcs", min: "Min. 50 pcs" },
+    { name: "Kalender Dinding 2027", cat: "kalender", desc: "13 lembar gantung, ruang logo besar di setiap halaman.", size: "30 × 42 cm", material: "Art paper 150gr", price: "Rp 25.000 / pcs", min: "Min. 50 pcs" },
+
+    { name: "Nota Faktur Rangkap 3", cat: "dokumen", desc: "Nota bisnis dengan salinan carbonless, tanpa karbon manual.", size: "1/3 folio", material: "NCR paper", price: "Rp 45.000 / buku", min: "Min. 5 buku" },
+    { name: "Kop Surat & Amplop", cat: "dokumen", desc: "Paket identitas surat resmi untuk korespondensi usaha.", size: "A4 & DL", material: "HVS 80gr", price: "Rp 500 / lbr", min: "Min. 500 lembar" },
+
+    { name: "Mug Custom Sablon", cat: "souvenir", desc: "Cetak foto atau logo full color, hasil tidak mudah pudar.", size: "11 oz", material: "Keramik", price: "Rp 35.000 / pcs", min: "Min. 12 pcs" },
+    { name: "Kaos Sablon Custom", cat: "souvenir", desc: "Sablon DTF kualitas tahan lama, warna tetap cerah.", size: "S – XXL", material: "Cotton combed 30s", price: "Rp 65.000 / pcs", min: "Min. 12 pcs" },
+    { name: "Totebag Custom", cat: "souvenir", desc: "Sablon logo, cocok untuk goodie bag atau souvenir event.", size: "35 × 40 cm", material: "Kanvas", price: "Rp 28.000 / pcs", min: "Min. 24 pcs" },
+
+    { name: "Box Kemasan Custom", cat: "box", desc: "Box makanan atau produk dengan cetak logo di setiap sisi.", size: "Ukuran custom", material: "Ivory 250gr", price: "Rp 3.500 / pcs", min: "Min. 100 pcs" },
+    { name: "Paper Bag Custom", cat: "box", desc: "Tas kertas untuk keperluan retail dan branding toko.", size: "Ukuran custom", material: "Kraft / ivory", price: "Rp 4.000 / pcs", min: "Min. 100 pcs" },
+
+    { name: "ID Card PVC", cat: "idcard", desc: "Kartu identitas karyawan, member, atau kartu pelajar, tahan lama.", size: "8.8 × 5.5 cm", material: "PVC 0.76mm", price: "Rp 15.000 / pcs", min: "Min. 20 pcs" },
+    { name: "Lanyard Custom", cat: "idcard", desc: "Tali ID card dengan logo usaha/sekolah/universitas tercetak rapi.", size: "2.5 × 90 cm", material: "Polyester", price: "Rp 17.000 / pcs", min: "Min. 50 pcs" },
+
+    { name: "Bendera bahan TC lokal", cat: "bendera", desc: "Bahan Kain cenderung lebih TEBAL + permukaan dasar KASAR.", size: "60 x 90", material: "TC lokal", price: "Rp 70.000", min: "Min. 1 unit" },
+  ];
+
+  let activeCat = "semua";
+  let query = "";
+
+  const filtersEl = document.getElementById("filters");
+  const gridEl = document.getElementById("grid");
+  const countEl = document.getElementById("countline");
+  const searchEl = document.getElementById("search");
+
+  function renderFilters() {
+    filtersEl.innerHTML = "";
+    categories.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "chip" + (c.key === activeCat ? " active" : "");
+      btn.textContent = c.label;
+      btn.setAttribute("aria-pressed", c.key === activeCat ? "true" : "false");
+      btn.addEventListener("click", () => { activeCat = c.key; render(); });
+      filtersEl.appendChild(btn);
+    });
+  }
+
+  function matches(p) {
+    const inCat = activeCat === "semua" || p.cat === activeCat;
+    const q = query.trim().toLowerCase();
+    const inQuery = !q || p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) ||
+      (categories.find(c => c.key === p.cat)?.label.toLowerCase().includes(q));
+    return inCat && inQuery;
+  }
+
+  function render() {
+    renderFilters();
+    const results = products.filter(matches);
+    countEl.textContent = `${results.length} produk ditemukan`;
+    gridEl.innerHTML = "";
+
+    if (results.length === 0) {
+      gridEl.innerHTML = `<div class="empty">
+        <p class="msg">Tidak ada produk yang cocok.</p>
+        <p class="mono">Coba kata kunci lain atau pilih kategori "Semua".</p>
+      </div>`;
+      return;
+    }
+
+    results.forEach(p => {
+      const catLabel = categories.find(c => c.key === p.cat)?.label || p.cat;
+      const accent = accentByCategory[p.cat] || "var(--ink-soft)";
+      const card = document.createElement("article");
+      card.className = "card";
+      card.style.setProperty("--accent", accent);
+      card.innerHTML = `
+        <div class="crop tl"></div><div class="crop tr"></div>
+        <div class="card-top">
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${icons[p.cat] || ""}</svg></div>
+          <span class="tag">${catLabel}</span>
+        </div>
+        <h3>${p.name}</h3>
+        <p class="desc">${p.desc}</p>
+        <div class="specs">
+          <span>ukuran &nbsp;${p.size}</span>
+          <span>bahan &nbsp;&nbsp;${p.material}</span>
+        </div>
+        <div class="price-row">
+          <span class="price">${p.price}</span>
+          <span class="minorder">${p.min}</span>
+        </div>
+      `;
+      gridEl.appendChild(card);
+    });
+  }
+
+  searchEl.addEventListener("input", (e) => { query = e.target.value; render(); });
+
+  render();
+</script>
+</body>
+</html>
